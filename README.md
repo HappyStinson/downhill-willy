@@ -16,4 +16,4 @@ This 2D game was made by [Rasmus Nordling](https://github.com/happystinson) and 
 
 [![Downhill Willy - BOSS Jam 2014](https://img.youtube.com/vi/TyWreu4zX1c/0.jpg)](https://youtu.be/TyWreu4zX1c)
 
-![Downhill Willy Screenshot](assets/downhill-willy-screenshot.jpg)
+![Downhill Willy Screenshot](assets/downhill-willy-screenshot.jpg?raw=true)
