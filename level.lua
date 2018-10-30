@@ -55,6 +55,7 @@ function level.update(dt)
   if not isRunning then
     audio["yodel_intro"]:stop()
     audio["yodel_loop"]:stop()
+    audio["yodel_loop"]:setPitch(1.0)
     audio["idle"]:play()
   end
   
@@ -66,6 +67,7 @@ function level.update(dt)
     if speed >= 30 then
       speed = 30
     end
+    audio["yodel_loop"]:setPitch(1 + (speed - 10) / 200) -- 1 -> 1.1
     
     score = score + (speed / 2) * dt
     if score > hiscore then
