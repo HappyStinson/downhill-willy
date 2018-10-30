@@ -24,12 +24,11 @@ function love.keypressed(key)
     local state = not love.mouse.isVisible()
     love.mouse.setVisible(state)
   end
-
+  
   -- Allow user to quit with escape
   if key == "escape" then
     love.event.quit()
   end
-
+  
   level.keypressed(key)
 end
-

@@ -2,22 +2,22 @@
 whale = {}
 
 function whale.load()
-  xPositions = { 130, 208, 280 }
+  xPositions = {130, 208, 280}
   whale.animationTime = 1
-
+  
   -- Start position
   whale.lane = 2
   whale.x = xPositions[2]
-  whale.y = getY(whale.lane, whale.x) 
+  whale.y = getY(whale.lane, whale.x)
   whale.offsetX = 56
-  whale.offsetY = 93 
+  whale.offsetY = 93
 end
 
 function whale.update(dt)
   whale.animationTime = whale.animationTime + dt
-
+  
   whale.x = xPositions[whale.lane]
-  whale.y = getY(whale.lane, whale.x) 
+  whale.y = getY(whale.lane, whale.x)
 end
 
 function whale.keypressed(key)
@@ -37,7 +37,7 @@ function whale.playAnimation()
 end
 
 function getY(lane, x)
-  local laneYPos = { 330, 250, 175 } 
+  local laneYPos = {330, 250, 175}
   return laneYPos[lane] + (0.335 * x)
 end
-  
+
