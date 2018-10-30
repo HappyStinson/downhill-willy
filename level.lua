@@ -31,9 +31,9 @@ function level.load()
   
   -- Initialize audio
   audio = {}
-  audio["idle"] = love.audio.newSource("assets/yodel_idle.wav")
-  audio["yodel_intro"] = love.audio.newSource("assets/yodel_intro.wav")
-  audio["yodel_loop"] = love.audio.newSource("assets/yodel_loop.wav")
+  audio["idle"] = love.audio.newSource("assets/yodel_idle.wav", "stream")
+  audio["yodel_intro"] = love.audio.newSource("assets/yodel_intro.wav", "stream")
+  audio["yodel_loop"] = love.audio.newSource("assets/yodel_loop.wav", "stream")
   
   audio["idle"]:setLooping(true)
   audio["yodel_intro"]:setLooping(false)
@@ -120,7 +120,7 @@ function level.draw()
 end
 
 function level.keypressed(key)
-  if key == " " then
+  if key == "space" then
     isRunning = true
     audio["idle"]:stop()
     if not audio["yodel_loop"]:isPlaying() then
@@ -157,7 +157,7 @@ end
 
 function level.initLanes()
   level.lanes = {}
-  level.laneWidth = love.window.getWidth()
+  level.laneWidth = love.graphics.getWidth()
   level.laneHeight = 20
   level.laneLayers = 3
   level.laneY = 50
@@ -312,19 +312,19 @@ end
 
 function level.drawUI()
   -- Score and hiscore
-  drawImage(images.ui_score, love.window.getWidth() / 2 - images.ui_score:getWidth() / 2, 0)
+  drawImage(images.ui_score, love.graphics.getWidth() / 2 - images.ui_score:getWidth() / 2, 0)
   drawImage(images.ui_hiscore, 1280 - images.ui_hiscore:getWidth(), 100)
-  drawImage(images.logo, 50, love.window.getHeight() - images.logo:getHeight() * 1.3)
+  drawImage(images.logo, 50, love.graphics.getHeight() - images.logo:getHeight() * 1.3)
   
   -- love.graphics.setColor(0, 0, 0, 0)
   
   rounded = string.format("%.0f", score)
   love.graphics.setFont(fonts.score)
-  love.graphics.printf(rounded.." M", love.window.getWidth() / 2 - 135, 53, 200, "right")
+  love.graphics.printf(rounded.." M", love.graphics.getWidth() / 2 - 135, 53, 200, "right")
   
   rounded = string.format("%.0f", hiscore)
   love.graphics.setFont(fonts.hiscore)
-  love.graphics.printf(rounded.." M", 1075, 145, 200, "right") --love.window.getWidth() - 105, 0, 200, "right")
+  love.graphics.printf(rounded.." M", 1075, 145, 200, "right") --love.graphics.getWidth() - 105, 0, 200, "right")
   
 end
 
