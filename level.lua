@@ -316,16 +316,15 @@ function level.drawUI()
   drawImage(images.ui_hiscore, 1280 - images.ui_hiscore:getWidth(), 100)
   drawImage(images.logo, 50, love.graphics.getHeight() - images.logo:getHeight() * 1.3)
   
-  -- love.graphics.setColor(0, 0, 0, 0)
-  
   rounded = string.format("%.0f", score)
   love.graphics.setFont(fonts.score)
   love.graphics.printf(rounded.." M", love.graphics.getWidth() / 2 - 135, 53, 200, "right")
   
+  love.graphics.setColor(0.0, 0.0, 0.0, 1.0)
   rounded = string.format("%.0f", hiscore)
   love.graphics.setFont(fonts.hiscore)
   love.graphics.printf(rounded.." M", 1075, 145, 200, "right") --love.graphics.getWidth() - 105, 0, 200, "right")
-  
+  love.graphics.setColor(1.0, 1.0, 1.0, 1.0)
 end
 
 -- Test of global function
