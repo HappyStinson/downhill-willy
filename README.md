@@ -9,6 +9,8 @@ You play as Willy the whale and the target is to race down the hill for as long 
 ![Tree object](assets/obj_tree.png)
 ![Snowman object](assets/obj_snowman.png)
 
+![Willy animation](assets/willy-animation.gif)
+
 ## Controls
 
 - `Space` to start skiing
