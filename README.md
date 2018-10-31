@@ -30,3 +30,8 @@ This 2D game was made by [Rasmus Nordling](https://github.com/happystinson) and 
 - Fonts used are [Sail](https://www.fontsquirrel.com/fonts/sail) and [League Gothic](https://www.fontsquirrel.com/fonts/League-Gothic)
 - Ambient sound used is [pineforest winter NL SHORT 130110](https://freesound.org/people/klankbeeld/sounds/173841/) by [klankbeeld](https://freesound.org/people/klankbeeld/)
 - Yodel loop used is sampled from [Franz "Franzl" Lang - Auf und auf voll Lebenslust](https://youtu.be/bXvoe7U1nwo?t=28)
+
+## Dependencies
+
+- Lua 5.1
+- [LÖVE](https://www.love2d.org/) 11.1
