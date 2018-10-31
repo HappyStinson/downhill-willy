@@ -2,13 +2,18 @@
 
 ![Downhill Willy logo](assets/logo.png)
 
-You play as Willy the whale and the target is to race down the hill for as long as you can. Watch out for those logs, rocks, trees and snowmen in your way.
+You play as Willy the whale and the target is to race down the hill for as long as you can. Watch out for those logs, stones, trees and snowmen blocking the lanes.
+
+![Log object](assets/obj_log.png)
+![Stone object](assets/obj_stone.png)
+![Tree object](assets/obj_tree.png)
+![Snowman object](assets/obj_snowman.png)
 
 ## Controls
 
 - `Space` to start skiing
 - `Up` and `Down` arrows to change the lane
-- `F` to exit full screen
+- `Escape` to quit the game
 
 This 2D game was made by [Rasmus Nordling](https://github.com/happystinson) and [Michael Cassel](https://github.com/mcassel) during the [BOSS Jam 2014](https://boss.bthstudent.se/bossjam/bossjam-2014/). The theme was *inkorrekt val* which translates to incorrect whale or choice.
 
