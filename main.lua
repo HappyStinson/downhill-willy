@@ -8,6 +8,8 @@ function love.load()
   love.mouse.setVisible(false)
   gameCanvas = love.graphics.newCanvas(GAME_WIDTH, GAME_HEIGHT)
   level.load()
+  -- Start the game in fullscreen
+  love.window.setFullscreen(true, "desktop")
 end
 
 function love.update(dt)
