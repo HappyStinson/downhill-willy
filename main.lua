@@ -43,18 +43,9 @@ function getMarginX(scale)
 end
 
 function love.keypressed(key)
-  -- Toggle fullscreen with f
-  if key == "f" then
-    local isFullscreen = not love.window.getFullscreen()
-    love.window.setFullscreen(isFullscreen, "desktop")
-    local state = not love.mouse.isVisible()
-    love.mouse.setVisible(state)
-  end
-  
-  -- Allow user to quit with escape
-  if key == "escape" then
+  if key == controls.quit then
     love.event.quit()
   end
   
-  level.keypressed(key)
+  level.keypressed(key, controls)
 end
