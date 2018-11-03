@@ -56,6 +56,7 @@ function level.update(dt)
   if not isRunning then
     audio["yodel_intro"]:stop()
     audio["yodel_loop"]:stop()
+    audio["yodel_loop"]:setPitch(1.0)
     audio["idle"]:play()
   end
   
@@ -67,6 +68,7 @@ function level.update(dt)
     if speed >= 30 then
       speed = 30
     end
+    audio["yodel_loop"]:setPitch(1 + (speed - 10) / 200) -- 1 -> 1.1
     
     score = score + (speed / 2) * dt
     if score > hiscore then
@@ -317,16 +319,15 @@ function level.drawUI()
   drawImage(images.ui_hiscore, 1280 - images.ui_hiscore:getWidth(), 100)
   drawImage(images.logo, 50, GAME_HEIGHT - images.logo:getHeight() * 1.3)
   
-  -- love.graphics.setColor(0, 0, 0, 0)
-  
   rounded = string.format("%.0f", score)
   love.graphics.setFont(fonts.score)
   love.graphics.printf(rounded.." M", GAME_WIDTH / 2 - 135, 53, 200, "right")
   
+  love.graphics.setColor(0.0, 0.0, 0.0, 1.0)
   rounded = string.format("%.0f", hiscore)
   love.graphics.setFont(fonts.hiscore)
   love.graphics.printf(rounded.." M", 1075, 145, 200, "right") --love.graphics.getWidth() - 105, 0, 200, "right")
-  
+  love.graphics.setColor(1.0, 1.0, 1.0, 1.0)
 end
 
 -- Test of global function
