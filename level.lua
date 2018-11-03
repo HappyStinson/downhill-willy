@@ -2,6 +2,7 @@
 
 level = {}
 require('whale')
+require('constants')
 
 -- LOVE callback functions
 function level.load()
@@ -157,7 +158,7 @@ end
 
 function level.initLanes()
   level.lanes = {}
-  level.laneWidth = love.graphics.getWidth()
+  level.laneWidth = GAME_WIDTH
   level.laneHeight = 20
   level.laneLayers = 3
   level.laneY = 50
@@ -312,15 +313,15 @@ end
 
 function level.drawUI()
   -- Score and hiscore
-  drawImage(images.ui_score, love.graphics.getWidth() / 2 - images.ui_score:getWidth() / 2, 0)
+  drawImage(images.ui_score, GAME_WIDTH / 2 - images.ui_score:getWidth() / 2, 0)
   drawImage(images.ui_hiscore, 1280 - images.ui_hiscore:getWidth(), 100)
-  drawImage(images.logo, 50, love.graphics.getHeight() - images.logo:getHeight() * 1.3)
+  drawImage(images.logo, 50, GAME_HEIGHT - images.logo:getHeight() * 1.3)
   
   -- love.graphics.setColor(0, 0, 0, 0)
   
   rounded = string.format("%.0f", score)
   love.graphics.setFont(fonts.score)
-  love.graphics.printf(rounded.." M", love.graphics.getWidth() / 2 - 135, 53, 200, "right")
+  love.graphics.printf(rounded.." M", GAME_WIDTH / 2 - 135, 53, 200, "right")
   
   rounded = string.format("%.0f", hiscore)
   love.graphics.setFont(fonts.hiscore)
