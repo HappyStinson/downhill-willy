@@ -3,6 +3,7 @@
 level = {}
 require 'whale'
 require 'constants'
+local audio = require 'audio'
 local colors = require 'colors'
 
 local function loadImages()
@@ -38,20 +39,6 @@ local function initLanes()
   }
 end
 
-local function createAudioStream(filename, isLooping)
-  local audio_source = love.audio.newSource("assets/" .. filename .. ".wav", "stream")
-  audio_source:setLooping(isLooping)
-  return audio_source
-end
-
-local function audioStreamLooped(filename)
-  return createAudioStream(filename, true)
-end
-
-local function audioStream(filename)
-  return createAudioStream(filename, false)
-end
-
 function level.load()
   loadImages()
   initFont()
@@ -79,12 +66,13 @@ function level.load()
   laneYPos = {330, 250, 175}
   
   -- Initialize audio
-  audio = {
-    idle = audioStreamLooped("yodel_idle"),
-    yodel_intro = audioStream("yodel_intro"),
-    yodel_loop = audioStreamLooped("yodel_loop")
+  audioSources = {
+    idle = audio.streamLooped("yodel_idle"),
+    yodel_intro = audio.stream("yodel_intro"),
+    yodel_loop = audio.streamLooped("yodel_loop"),
+    fanfare = audio.soundEffect("fanfare")
   }
-  audio.idle:play()
+  audioSources.idle:play()
   
   -- Keep track of current and best score
   score = 0
@@ -149,6 +137,7 @@ local function leaveRunningState()
   -- Check if player got new high score
   if score == hiscore then
     playerGotNewHighScore = true
+    audioSources.fanfare:play()
   end
 
   score = 0
@@ -179,10 +168,10 @@ end
 
 function level.update(dt)
   if not isRunning then
-    audio.yodel_intro:stop()
-    audio.yodel_loop:stop()
-    audio.yodel_loop:setPitch(1.0)
-    audio.idle:play()
+    audioSources.yodel_intro:stop()
+    audioSources.yodel_loop:stop()
+    audioSources.yodel_loop:setPitch(1.0)
+    audioSources.idle:play()
   end
   
   if isRunning == true then
@@ -195,7 +184,7 @@ function level.update(dt)
     if speed >= 30 then
       speed = 30
     end
-    audio.yodel_loop:setPitch(1 + (speed - 10) / 200) -- 1 -> 1.1
+    audioSources.yodel_loop:setPitch(1 + (speed - 10) / 200) -- 1 -> 1.1
     
     score = score + (speed / 2) * dt
     if score > hiscore then
@@ -224,8 +213,8 @@ function level.update(dt)
     
     removeObjects()
     
-    if (not audio.yodel_intro:isPlaying()) and isRunning == true then
-      audio.yodel_loop:play()
+    if (not audioSources.yodel_intro:isPlaying()) and isRunning == true then
+      audioSources.yodel_loop:play()
     end
   end
 end
@@ -376,9 +365,9 @@ end
 local function startGame()
   isRunning = true
   playerGotNewHighScore = false
-  audio.idle:stop()
-  if not audio.yodel_loop:isPlaying() then
-    audio.yodel_intro:play()
+  audioSources.idle:stop()
+  if not audioSources.yodel_loop:isPlaying() then
+    audioSources.yodel_intro:play()
   end
 end
 
