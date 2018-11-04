@@ -21,9 +21,10 @@ local function loadImages()
 end
 
 local function initFont()
-  fonts = {}
-  fonts.score = love.graphics.newFont("assets/font_score.otf", 22)
-  fonts.hiscore = love.graphics.newFont("assets/font_hiscore.otf", 27)
+  fonts = {
+    score = love.graphics.newFont("assets/font_score.otf", 22),
+    high_score = love.graphics.newFont("assets/font_hiscore.otf", 27)
+  }
 end
 
 local function initLanes()
@@ -278,24 +279,48 @@ local function drawObjects()
   end
 end
 
-local function drawUI()
+local function drawGUI(controls)
+  local center = {
+    x = GAME_WIDTH / 2,
+    y = GAME_HEIGHT / 2
+  }
+
   -- Score and hiscore
-  drawImage(images.ui_score, GAME_WIDTH / 2 - images.ui_score:getWidth() / 2, 0)
+  local limit = 200 -- Wrap the line after this many horizontal pixels
+  drawImage(images.ui_score, center.x - (images.ui_score:getWidth() / 2), 0)
   drawImage(images.ui_hiscore, 1280 - images.ui_hiscore:getWidth(), 100)
   drawImage(images.logo, 50, GAME_HEIGHT - images.logo:getHeight() * 1.3)
   
   rounded = string.format("%.0f", score)
   love.graphics.setFont(fonts.score)
-  love.graphics.printf(rounded.." M", GAME_WIDTH / 2 - 135, 53, 200, "right")
+  love.graphics.printf(rounded .. " M", center.x - 135, 53, limit, "right")
   
   love.graphics.setColor(0.0, 0.0, 0.0, 1.0)
   rounded = string.format("%.0f", hiscore)
-  love.graphics.setFont(fonts.hiscore)
-  love.graphics.printf(rounded.." M", 1075, 145, 200, "right") --love.graphics.getWidth() - 105, 0, 200, "right")
-  love.graphics.setColor(1.0, 1.0, 1.0, 1.0)
+  love.graphics.setFont(fonts.high_score)
+  love.graphics.printf(rounded .. " M", 1075, 145, limit, "right")
+  love.graphics.setColor(1, 1, 1)
+  
+  if not isRunning then
+    -- Show info centered on the screen
+    local gui_text = {
+      "Press " .. controls.start .. " to start",
+      "Press " .. controls.toggle_fullscreen .. " to toggle fullscreen",
+      "Press " .. controls.quit .. " to quit"
+    }
+    
+    local font_height = fonts.high_score:getHeight()
+    love.graphics.setColor(0, 0.3, 0.7, 0.3)
+    love.graphics.rectangle("fill", 0, center.y, GAME_WIDTH, font_height * (#gui_text + 2))
+    love.graphics.setColor(1, 1, 1, 1)
+    
+    for i = 1, #gui_text do
+      love.graphics.printf(gui_text[i], 0, center.y + (font_height * i), GAME_WIDTH, "center")
+    end
+  end
 end
 
-function level.draw()
+function level.draw(controls)
   drawBackground()
   drawForeground()
   drawLanes()
@@ -311,7 +336,7 @@ function level.draw()
   end
   
   -- Draw user interface
-  drawUI()
+  drawGUI(controls)
 end
 
 local function toggleFullscreen()

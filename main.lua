@@ -18,7 +18,7 @@ end
 
 function love.draw()
   love.graphics.setCanvas(gameCanvas)
-  level.draw()
+  level.draw(controls)
   love.graphics.setCanvas()
   local scale = getScale()
   love.graphics.draw(gameCanvas, getMarginX(scale), getMarginY(scale), 0, scale, scale)
