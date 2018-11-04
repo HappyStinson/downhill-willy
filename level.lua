@@ -24,7 +24,8 @@ end
 local function initFont()
   fonts = {
     score = love.graphics.newFont("assets/font_score.otf", 22),
-    high_score = love.graphics.newFont("assets/font_hiscore.otf", 27)
+    high_score = love.graphics.newFont("assets/font_hiscore.otf", 27),
+    instructions = love.graphics.newFont("assets/font_score.otf", 27),
   }
 end
 
@@ -302,27 +303,33 @@ local function drawGUI(controls)
   drawImage(images.ui_hiscore, 1280 - images.ui_hiscore:getWidth(), 100)
   drawImage(images.logo, 50, GAME_HEIGHT - images.logo:getHeight() * 1.3)
   
-  rounded = string.format("%.0f", score)
+  local score_text = string.format("%.0f M", score)
   love.graphics.setFont(fonts.score)
-  love.graphics.printf(rounded .. " M", center.x - 135, 53, limit, "right")
+  love.graphics.printf(score_text, center.x - 135, 53, limit, "right")
   
   setColor("black")
+  score_text = string.format("%.0f M", hiscore)
   love.graphics.setFont(fonts.high_score)
+  love.graphics.printf(score_text, 1075, 145, limit, "right")
   setColor("white")
   
   if not isRunning then
     -- Show info centered on the screen
-    local gui_text = {
-      "Press " .. controls.start .. " to start",
-      "Press " .. controls.toggle_fullscreen .. " to toggle fullscreen",
-      "Press " .. controls.quit .. " to quit"
+    local instructions = {
+      string.format("Press %s to start skiing", string.upper(controls.start)),
+      string.format("%s toggles fullscreen", string.upper(controls.toggle_fullscreen)),
+      string.format("%s quits the game", string.upper(controls.quit))
     }
     
-    setColor("light-blue accent-4", .3)
-    setColor("white")
+    local font_height = fonts.instructions:getHeight()
     
-    for i = 1, #gui_text do
-      love.graphics.printf(gui_text[i], 0, center.y + (font_height * i), GAME_WIDTH, "center")
+    setColor("light-blue accent-4", .3)
+    love.graphics.rectangle("fill", 0, center.y, GAME_WIDTH, font_height * (#instructions + 2))
+    setColor("white")
+    love.graphics.setFont(fonts.instructions)
+
+    for i = 1, #instructions do
+      love.graphics.printf(instructions[i], 0, center.y + (font_height * i), GAME_WIDTH, "center")
     end
   end
 end
