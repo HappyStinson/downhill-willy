@@ -3,6 +3,7 @@
 level = {}
 require 'whale'
 require 'constants'
+local colors = require 'colors'
 
 local function loadImages()
   img_fn = {"bg_forest", "bg_mnt1", "bg_mnt2", "fg_snow", "ui_hiscore", "lanes", "logo", "obj_log", "obj_snowman", "obj_stone", "obj_tree", "player_idle", "player_run1", "player_run2", "ui_score", "sky", "vall"}
@@ -279,6 +280,16 @@ local function drawObjects()
   end
 end
 
+local function setColor(color, alpha)
+  if alpha then
+    local color_table = colors[color]
+    table.insert(color_table, alpha)
+    love.graphics.setColor(color_table)
+  else 
+    love.graphics.setColor(colors[color])
+  end
+end
+
 local function drawGUI(controls)
   local center = {
     x = GAME_WIDTH / 2,
@@ -295,11 +306,9 @@ local function drawGUI(controls)
   love.graphics.setFont(fonts.score)
   love.graphics.printf(rounded .. " M", center.x - 135, 53, limit, "right")
   
-  love.graphics.setColor(0.0, 0.0, 0.0, 1.0)
-  rounded = string.format("%.0f", hiscore)
+  setColor("black")
   love.graphics.setFont(fonts.high_score)
-  love.graphics.printf(rounded .. " M", 1075, 145, limit, "right")
-  love.graphics.setColor(1, 1, 1)
+  setColor("white")
   
   if not isRunning then
     -- Show info centered on the screen
@@ -309,10 +318,8 @@ local function drawGUI(controls)
       "Press " .. controls.quit .. " to quit"
     }
     
-    local font_height = fonts.high_score:getHeight()
-    love.graphics.setColor(0, 0.3, 0.7, 0.3)
-    love.graphics.rectangle("fill", 0, center.y, GAME_WIDTH, font_height * (#gui_text + 2))
-    love.graphics.setColor(1, 1, 1, 1)
+    setColor("light-blue accent-4", .3)
+    setColor("white")
     
     for i = 1, #gui_text do
       love.graphics.printf(gui_text[i], 0, center.y + (font_height * i), GAME_WIDTH, "center")
