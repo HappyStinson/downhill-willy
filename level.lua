@@ -1,142 +1,10 @@
 -- This file describes our level
 
 level = {}
-require('whale')
-require('constants')
+require 'whale'
+require 'constants'
 
--- LOVE callback functions
-function level.load()
-  level.loadImages()
-  level.initFont()
-  level.initLanes()
-  level.objects = {}
-  
-  collision = false
-  isRunning = false
-  
-  time = 0
-  speed = 10 -- Go from 5 to 30
-  
-  -- Store info about x, y, width for objects
-  offsets = {}
-  offsets["obj_log"] = {112, 47, 50}
-  offsets["obj_snowman"] = {38, 105, 100}
-  offsets["obj_stone"] = {33, 53, 55}
-  offsets["obj_tree"] = {45, 107, 80}
-  bgOffsets = {mnt1 = 0, mnt2 = 0, forest = 0}
-  
-  laneYPos = {}
-  laneYPos[1] = 330
-  laneYPos[2] = 250
-  laneYPos[3] = 175
-  
-  -- Initialize audio
-  audio = {}
-  audio["idle"] = love.audio.newSource("assets/yodel_idle.wav", "stream")
-  audio["yodel_intro"] = love.audio.newSource("assets/yodel_intro.wav", "stream")
-  audio["yodel_loop"] = love.audio.newSource("assets/yodel_loop.wav", "stream")
-  
-  audio["idle"]:setLooping(true)
-  audio["yodel_intro"]:setLooping(false)
-  audio["yodel_loop"]:setLooping(true)
-  
-  audio["idle"]:play()
-  
-  -- Keep track of current and best score
-  score = 0
-  hiscore = 0
-  
-  -- Because black is nice!
-  -- love.graphics.setColor(0, 0, 0, 255)
-  
-  whale.load()
-end
-
-function level.update(dt)
-  if not isRunning then
-    audio["yodel_intro"]:stop()
-    audio["yodel_loop"]:stop()
-    audio["yodel_loop"]:setPitch(1.0)
-    audio["idle"]:play()
-  end
-  
-  if isRunning == true then
-    
-    -- Speed changes with time
-    time = time + dt
-    speed = 10 + time / 15
-    if speed >= 30 then
-      speed = 30
-    end
-    audio["yodel_loop"]:setPitch(1 + (speed - 10) / 200) -- 1 -> 1.1
-    
-    score = score + (speed / 2) * dt
-    if score > hiscore then
-      hiscore = score
-    end
-    
-    level.updateBackground(dt)
-    
-    -- Spawn new objects
-    if love.math.random(1, 100) <= 1 then
-      level.spawnRandomObject()
-    end
-    
-    -- Update object positions
-    for _, v in ipairs(level.objects) do
-      v.x = v.x - dt * 100 * speed
-      v.y = laneYPos[v.lane] + 0.335 * v.x
-    end
-    
-    -- Update whale position
-    whale.update(dt)
-    
-    if time > 2 then
-      level.checkCollision()
-    end
-    
-    level.removeObjects()
-    
-    if (not audio["yodel_intro"]:isPlaying()) and isRunning == true then
-      audio["yodel_loop"]:play()
-    end
-  end
-end
-
-function level.draw()
-  level.drawBackground()
-  level.drawForeground()
-  level.drawLanes()
-  level.drawObjects()
-  
-  -- Draw whale according to game running state
-  if not isRunning then
-    love.graphics.draw(images.player_idle, whale.x, whale.y, 0, 1, 1, whale.offsetX, whale.offsetY)
-  else
-    if (#level.objects == 0) and isRunning then
-      whale.playAnimation()
-    end
-  end
-  
-  -- Draw user interface
-  level.drawUI()
-end
-
-function level.keypressed(key)
-  if key == "space" then
-    isRunning = true
-    audio["idle"]:stop()
-    if not audio["yodel_loop"]:isPlaying() then
-      audio["yodel_intro"]:play()
-    end
-  end
-  if isRunning == true then
-    whale.keypressed(key)
-  end
-end
-
--- Helper functions
-function level.loadImages()
+local function loadImages()
   img_fn = {"bg_forest", "bg_mnt1", "bg_mnt2", "fg_snow", "ui_hiscore", "lanes", "logo", "obj_log", "obj_snowman", "obj_stone", "obj_tree", "player_idle", "player_run1", "player_run2", "ui_score", "sky", "vall"}
   images = {}
   for _, v in ipairs(img_fn) do
@@ -152,28 +20,79 @@ function level.loadImages()
   images.bg_forest:setWrap("repeat")
 end
 
-function level.initFont()
-  fonts = {}
-  fonts["score"] = love.graphics.newFont("assets/font_score.otf", 22)
-  fonts["hiscore"] = love.graphics.newFont("assets/font_hiscore.otf", 27)
+local function initFont()
+  fonts = {
+    score = love.graphics.newFont("assets/font_score.otf", 22),
+    high_score = love.graphics.newFont("assets/font_hiscore.otf", 27)
+  }
 end
 
-function level.initLanes()
-  level.lanes = {}
-  level.laneWidth = GAME_WIDTH
-  level.laneHeight = 20
-  level.laneLayers = 3
-  level.laneY = 50
+local function initLanes()
+  level.lanes = {
+    laneWidth = GAME_WIDTH,
+    laneHeight = 20,
+    laneLayers = 3,
+    laneY = 50
+  }
+end
+
+local function createAudioStream(filename, isLooping)
+  local audio_source = love.audio.newSource("assets/" .. filename .. ".wav", "stream")
+  audio_source:setLooping(isLooping)
+  return audio_source
+end
+
+local function audioStreamLooped(filename)
+  return createAudioStream(filename, true)
+end
+
+local function audioStream(filename)
+  return createAudioStream(filename, false)
+end
+
+function level.load()
+  loadImages()
+  initFont()
+  initLanes()
+  level.objects = {}
   
-  color = {r = 50, g = 50, b = 50, a = 50}
-  --[[
-  for layer, level.laneLayers, 1 do
-    level.addLane(0 + level.laneY * layer, level.laneHeight, color)
-  end
-  ]]--
+  collision = false
+  isRunning = false
+  
+  time = 0
+  speed = 10
+  
+  offsets = {
+    obj_log = {112, 47, 50},
+    obj_snowman = {38, 105, 100},
+    obj_stone = {33, 53, 55},
+    obj_tree = {45, 107, 80}
+  }
+  
+  bgOffsets = {
+    mnt1 = 0,
+    mnt2 = 0,
+    forest = 0
+  }
+  
+  laneYPos = {330, 250, 175}
+  
+  -- Initialize audio
+  audio = {
+    idle = audioStreamLooped("yodel_idle"),
+    yodel_intro = audioStream("yodel_intro"),
+    yodel_loop = audioStreamLooped("yodel_loop")
+  }
+  audio.idle:play()
+  
+  -- Keep track of current and best score
+  score = 0
+  hiscore = 0
+  
+  whale.load()
 end
 
-function level.updateBackground(dt)
+local function updateBackground(dt)
   bgOffsets.mnt1 = bgOffsets.mnt1 + dt * 5 * speed
   bgOffsets.mnt2 = bgOffsets.mnt2 + dt * 10 * speed
   bgOffsets.forest = bgOffsets.forest + dt * 40 * speed
@@ -189,7 +108,7 @@ function level.updateBackground(dt)
   end
 end
 
-function level.spawnRandomObject()
+local function spawnRandomObject()
   -- Randomize object type and lane
   lane = love.math.random(1, 3)
   objType = love.math.random(1, 100)
@@ -221,7 +140,7 @@ function level.spawnRandomObject()
   table.insert(level.objects, object)
 end
 
-function level.checkCollision()
+local function checkCollision()
   -- Only check collision with objects on same lane
   for _, v in ipairs(level.objects) do
     if v.lane == whale.lane or ((v.ID == "obj_log") and (v.lane == (whale.lane + 1))) then
@@ -242,7 +161,7 @@ function level.checkCollision()
   end
 end
 
-function level.removeObjects()
+local function removeObjects()
   -- Remove all objects that have left the screen
   for _, v in ipairs(level.objects) do
     if v.x < -100 then
@@ -251,7 +170,60 @@ function level.removeObjects()
   end
 end
 
-function level.drawBackground()
+function level.update(dt)
+  if not isRunning then
+    audio.yodel_intro:stop()
+    audio.yodel_loop:stop()
+    audio.yodel_loop:setPitch(1.0)
+    audio.idle:play()
+  end
+  
+  if isRunning == true then
+    isPaused = false
+    
+    -- Speed changes with time
+    -- Better to only update speed if less than 30 ... to avoid a lot of heavy calculation.
+    time = time + dt
+    speed = 10 + time / 15
+    if speed >= 30 then
+      speed = 30
+    end
+    audio.yodel_loop:setPitch(1 + (speed - 10) / 200) -- 1 -> 1.1
+    
+    score = score + (speed / 2) * dt
+    if score > hiscore then
+      hiscore = score
+    end
+    
+    updateBackground(dt)
+    
+    -- Spawn new objects
+    if love.math.random(1, 100) <= 1 then
+      spawnRandomObject()
+    end
+    
+    -- Update object positions
+    for _, v in ipairs(level.objects) do
+      v.x = v.x - dt * 100 * speed
+      v.y = laneYPos[v.lane] + 0.335 * v.x
+    end
+    
+    -- Update whale position
+    whale.update(dt)
+    
+    if time > 2 then
+      checkCollision()
+    end
+    
+    removeObjects()
+    
+    if (not audio.yodel_intro:isPlaying()) and isRunning == true then
+      audio.yodel_loop:play()
+    end
+  end
+end
+
+local function drawBackground()
   -- Draw the beautiful sky
   love.graphics.draw(images.sky, 0, 0)
   love.graphics.draw(images.bg_mnt1, mountainQuad, 0, 0, 0, 1, 1, bgOffsets.mnt1, 0)
@@ -259,18 +231,22 @@ function level.drawBackground()
   love.graphics.draw(images.bg_forest, forestQuad, 0, 191, 0, 1, 1, bgOffsets.forest, 0)
 end
 
-function level.drawForeground()
+local function drawImage(image, x, y)
+  love.graphics.draw(image, x, y)
+end
+
+local function drawForeground()
   -- Draw at bottom left
   drawImage(images.fg_snow, 0, 272)
 end
 
-function level.drawLanes()
+local function drawLanes()
   drawImage(images.lanes, 0, 130)
   drawImage(images.vall, 0, 105)
   drawImage(images.vall, 0, 345)
 end
 
-function level.drawObjects()
+local function drawObjects()
   table.sort(level.objects, function(a, b) return a.lane > b.lane end)
   playerDrawn = true
   
@@ -301,37 +277,92 @@ function level.drawObjects()
       playerDrawn = false
     end
   end
-  
-  --[[
-  for _, v in ipairs(level.objects) do
-    if whale.lane >= v.lane and playerDrawn then
-      love.graphics.draw(images.temp_player, whale.x, whale.y, 0, 1, 1, whale.offsetX, whale.offsetY)
-      playerDrawn = false
-    end
-    love.graphics.draw(images[v.ID], v.x, v.y, 0, 1, 1, offsets[v.ID][1], offsets[v.ID][2])
-  end
-  --]]
 end
 
-function level.drawUI()
+local function drawGUI(controls)
+  local center = {
+    x = GAME_WIDTH / 2,
+    y = GAME_HEIGHT / 2
+  }
+
   -- Score and hiscore
-  drawImage(images.ui_score, GAME_WIDTH / 2 - images.ui_score:getWidth() / 2, 0)
+  local limit = 200 -- Wrap the line after this many horizontal pixels
+  drawImage(images.ui_score, center.x - (images.ui_score:getWidth() / 2), 0)
   drawImage(images.ui_hiscore, 1280 - images.ui_hiscore:getWidth(), 100)
   drawImage(images.logo, 50, GAME_HEIGHT - images.logo:getHeight() * 1.3)
   
   rounded = string.format("%.0f", score)
   love.graphics.setFont(fonts.score)
-  love.graphics.printf(rounded.." M", GAME_WIDTH / 2 - 135, 53, 200, "right")
+  love.graphics.printf(rounded .. " M", center.x - 135, 53, limit, "right")
   
   love.graphics.setColor(0.0, 0.0, 0.0, 1.0)
   rounded = string.format("%.0f", hiscore)
-  love.graphics.setFont(fonts.hiscore)
-  love.graphics.printf(rounded.." M", 1075, 145, 200, "right") --love.graphics.getWidth() - 105, 0, 200, "right")
-  love.graphics.setColor(1.0, 1.0, 1.0, 1.0)
+  love.graphics.setFont(fonts.high_score)
+  love.graphics.printf(rounded .. " M", 1075, 145, limit, "right")
+  love.graphics.setColor(1, 1, 1)
+  
+  if not isRunning then
+    -- Show info centered on the screen
+    local gui_text = {
+      "Press " .. controls.start .. " to start",
+      "Press " .. controls.toggle_fullscreen .. " to toggle fullscreen",
+      "Press " .. controls.quit .. " to quit"
+    }
+    
+    local font_height = fonts.high_score:getHeight()
+    love.graphics.setColor(0, 0.3, 0.7, 0.3)
+    love.graphics.rectangle("fill", 0, center.y, GAME_WIDTH, font_height * (#gui_text + 2))
+    love.graphics.setColor(1, 1, 1, 1)
+    
+    for i = 1, #gui_text do
+      love.graphics.printf(gui_text[i], 0, center.y + (font_height * i), GAME_WIDTH, "center")
+    end
+  end
 end
 
--- Test of global function
-function drawImage(image, x, y)
-  love.graphics.draw(image, x, y)
+function level.draw(controls)
+  drawBackground()
+  drawForeground()
+  drawLanes()
+  drawObjects()
+  
+  -- Draw whale according to game running state
+  if not isRunning then
+    love.graphics.draw(images.player_idle, whale.x, whale.y, 0, 1, 1, whale.offsetX, whale.offsetY)
+  else
+    if (#level.objects == 0) and isRunning then
+      whale.playAnimation()
+    end
+  end
+  
+  -- Draw user interface
+  drawGUI(controls)
 end
 
+local function toggleFullscreen()
+  local isFullscreen = not love.window.getFullscreen()
+  love.window.setFullscreen(isFullscreen, "desktop")
+end
+
+local function toggleMouseVisibility()
+  local state = not love.mouse.isVisible()
+  love.mouse.setVisible(state)
+end
+
+function level.keypressed(key, controls)
+  if not isRunning then
+    if key == controls.toggle_fullscreen then
+      toggleFullscreen()
+      toggleMouseVisibility()
+    end
+    if key == controls.start then
+      isRunning = true
+      audio.idle:stop()
+      if not audio.yodel_loop:isPlaying() then
+        audio.yodel_intro:play()
+      end
+    end
+  else
+    whale.keypressed(key)
+  end
+end
