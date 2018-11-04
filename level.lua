@@ -69,10 +69,17 @@ function level.load()
   audioSources = {
     idle = audio.streamLooped("yodel_idle"),
     yodel_intro = audio.stream("yodel_intro"),
-    yodel_loop = audio.streamLooped("yodel_loop"),
-    fanfare = audio.soundEffect("fanfare")
+    yodel_loop = audio.streamLooped("yodel_loop")
   }
   audioSources.idle:play()
+
+  soundEffects = {
+    fanfare = audio.soundEffect("fanfare"),
+    obj_log = audio.soundEffect("crash-log"),
+    obj_snowman = audio.soundEffect("crash-snowman"),
+    obj_stone = audio.soundEffect("crash-stone"),
+    obj_tree = audio.soundEffect("crash-tree")
+  }
   
   -- Keep track of current and best score
   score = 0
@@ -137,7 +144,7 @@ local function leaveRunningState()
   -- Check if player got new high score
   if score == hiscore then
     playerGotNewHighScore = true
-    audioSources.fanfare:play()
+    soundEffects.fanfare:play()
   end
 
   score = 0
@@ -151,6 +158,7 @@ local function checkCollision()
       
       if ((v.ID == "obj_log") and (v.lane == (whale.lane + 1))) and (distance < (offsets[v.ID][3])) or
          distance < (offsets[v.ID][3] / 2) then
+        soundEffects[v.ID]:play()
         leaveRunningState()
       end
     end
