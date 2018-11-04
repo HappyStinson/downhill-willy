@@ -58,7 +58,6 @@ function level.load()
   initLanes()
   level.objects = {}
   
-  collision = false
   isRunning = false
   
   time = 0
@@ -90,6 +89,7 @@ function level.load()
   -- Keep track of current and best score
   score = 0
   hiscore = 0
+  playerGotNewHighScore = false
   
   whale.load()
 end
@@ -142,22 +142,27 @@ local function spawnRandomObject()
   table.insert(level.objects, object)
 end
 
+local function leaveRunningState()
+  isRunning = false
+  time = 0
+
+  -- Check if player got new high score
+  if score == hiscore then
+    playerGotNewHighScore = true
+  end
+
+  score = 0
+end
+
 local function checkCollision()
   -- Only check collision with objects on same lane
   for _, v in ipairs(level.objects) do
     if v.lane == whale.lane or ((v.ID == "obj_log") and (v.lane == (whale.lane + 1))) then
       distance = math.abs(whale.x - v.x)
       
-      if ((v.ID == "obj_log") and (v.lane == (whale.lane + 1))) and (distance < (offsets[v.ID][3])) then
-        collision = true
-        isRunning = false
-        time = 0
-        score = 0
-      elseif distance < (offsets[v.ID][3] / 2) then
-        collision = true
-        isRunning = false
-        time = 0
-        score = 0
+      if ((v.ID == "obj_log") and (v.lane == (whale.lane + 1))) and (distance < (offsets[v.ID][3])) or
+         distance < (offsets[v.ID][3] / 2) then
+        leaveRunningState()
       end
     end
   end
@@ -314,6 +319,11 @@ local function drawGUI(controls)
   setColor("white")
   
   if not isRunning then
+    if playerGotNewHighScore then
+      setColor("black")
+      love.graphics.printf("New High Score! " .. score_text, 0, center.y, GAME_WIDTH, "center")
+    end
+
     -- Show info centered on the screen
     local instructions = {
       string.format("Press %s to start skiing", string.upper(controls.start)),
@@ -363,6 +373,15 @@ local function toggleMouseVisibility()
   love.mouse.setVisible(state)
 end
 
+local function startGame()
+  isRunning = true
+  playerGotNewHighScore = false
+  audio.idle:stop()
+  if not audio.yodel_loop:isPlaying() then
+    audio.yodel_intro:play()
+  end
+end
+
 function level.keypressed(key, controls)
   if not isRunning then
     if key == controls.toggle_fullscreen then
@@ -370,11 +389,7 @@ function level.keypressed(key, controls)
       toggleMouseVisibility()
     end
     if key == controls.start then
-      isRunning = true
-      audio.idle:stop()
-      if not audio.yodel_loop:isPlaying() then
-        audio.yodel_intro:play()
-      end
+      startGame()
     end
   else
     whale.keypressed(key)
