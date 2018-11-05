@@ -3,6 +3,7 @@
 level = {}
 require 'whale'
 require 'constants'
+local colors = require 'colors'
 
 local function loadImages()
   img_fn = {"bg_forest", "bg_mnt1", "bg_mnt2", "fg_snow", "ui_hiscore", "lanes", "logo", "obj_log", "obj_snowman", "obj_stone", "obj_tree", "player_idle", "player_run1", "player_run2", "ui_score", "sky", "vall"}
@@ -23,7 +24,8 @@ end
 local function initFont()
   fonts = {
     score = love.graphics.newFont("assets/font_score.otf", 22),
-    high_score = love.graphics.newFont("assets/font_hiscore.otf", 27)
+    high_score = love.graphics.newFont("assets/font_hiscore.otf", 27),
+    instructions = love.graphics.newFont("assets/font_score.otf", 27),
   }
 end
 
@@ -56,7 +58,6 @@ function level.load()
   initLanes()
   level.objects = {}
   
-  collision = false
   isRunning = false
   
   time = 0
@@ -88,6 +89,7 @@ function level.load()
   -- Keep track of current and best score
   score = 0
   hiscore = 0
+  playerGotNewHighScore = false
   
   whale.load()
 end
@@ -140,22 +142,27 @@ local function spawnRandomObject()
   table.insert(level.objects, object)
 end
 
+local function leaveRunningState()
+  isRunning = false
+  time = 0
+
+  -- Check if player got new high score
+  if score == hiscore then
+    playerGotNewHighScore = true
+  end
+
+  score = 0
+end
+
 local function checkCollision()
   -- Only check collision with objects on same lane
   for _, v in ipairs(level.objects) do
     if v.lane == whale.lane or ((v.ID == "obj_log") and (v.lane == (whale.lane + 1))) then
       distance = math.abs(whale.x - v.x)
       
-      if ((v.ID == "obj_log") and (v.lane == (whale.lane + 1))) and (distance < (offsets[v.ID][3])) then
-        collision = true
-        isRunning = false
-        time = 0
-        score = 0
-      elseif distance < (offsets[v.ID][3] / 2) then
-        collision = true
-        isRunning = false
-        time = 0
-        score = 0
+      if ((v.ID == "obj_log") and (v.lane == (whale.lane + 1))) and (distance < (offsets[v.ID][3])) or
+         distance < (offsets[v.ID][3] / 2) then
+        leaveRunningState()
       end
     end
   end
@@ -279,6 +286,16 @@ local function drawObjects()
   end
 end
 
+local function setColor(color, alpha)
+  if alpha then
+    local color_table = colors[color]
+    table.insert(color_table, alpha)
+    love.graphics.setColor(color_table)
+  else 
+    love.graphics.setColor(colors[color])
+  end
+end
+
 local function drawGUI(controls)
   local center = {
     x = GAME_WIDTH / 2,
@@ -291,31 +308,38 @@ local function drawGUI(controls)
   drawImage(images.ui_hiscore, 1280 - images.ui_hiscore:getWidth(), 100)
   drawImage(images.logo, 50, GAME_HEIGHT - images.logo:getHeight() * 1.3)
   
-  rounded = string.format("%.0f", score)
+  local score_text = string.format("%.0f M", score)
   love.graphics.setFont(fonts.score)
-  love.graphics.printf(rounded .. " M", center.x - 135, 53, limit, "right")
+  love.graphics.printf(score_text, center.x - 135, 53, limit, "right")
   
-  love.graphics.setColor(0.0, 0.0, 0.0, 1.0)
-  rounded = string.format("%.0f", hiscore)
+  setColor("black")
+  score_text = string.format("%.0f M", hiscore)
   love.graphics.setFont(fonts.high_score)
-  love.graphics.printf(rounded .. " M", 1075, 145, limit, "right")
-  love.graphics.setColor(1, 1, 1)
+  love.graphics.printf(score_text, 1075, 145, limit, "right")
+  setColor("white")
   
   if not isRunning then
+    if playerGotNewHighScore then
+      setColor("black")
+      love.graphics.printf("New High Score! " .. score_text, 0, center.y, GAME_WIDTH, "center")
+    end
+
     -- Show info centered on the screen
-    local gui_text = {
-      "Press " .. controls.start .. " to start",
-      "Press " .. controls.toggle_fullscreen .. " to toggle fullscreen",
-      "Press " .. controls.quit .. " to quit"
+    local instructions = {
+      string.format("Press %s to start skiing", string.upper(controls.start)),
+      string.format("%s toggles fullscreen", string.upper(controls.toggle_fullscreen)),
+      string.format("%s quits the game", string.upper(controls.quit))
     }
     
-    local font_height = fonts.high_score:getHeight()
-    love.graphics.setColor(0, 0.3, 0.7, 0.3)
-    love.graphics.rectangle("fill", 0, center.y, GAME_WIDTH, font_height * (#gui_text + 2))
-    love.graphics.setColor(1, 1, 1, 1)
+    local font_height = fonts.instructions:getHeight()
     
-    for i = 1, #gui_text do
-      love.graphics.printf(gui_text[i], 0, center.y + (font_height * i), GAME_WIDTH, "center")
+    setColor("light-blue accent-4", .3)
+    love.graphics.rectangle("fill", 0, center.y, GAME_WIDTH, font_height * (#instructions + 2))
+    setColor("white")
+    love.graphics.setFont(fonts.instructions)
+
+    for i = 1, #instructions do
+      love.graphics.printf(instructions[i], 0, center.y + (font_height * i), GAME_WIDTH, "center")
     end
   end
 end
@@ -349,6 +373,15 @@ local function toggleMouseVisibility()
   love.mouse.setVisible(state)
 end
 
+local function startGame()
+  isRunning = true
+  playerGotNewHighScore = false
+  audio.idle:stop()
+  if not audio.yodel_loop:isPlaying() then
+    audio.yodel_intro:play()
+  end
+end
+
 function level.keypressed(key, controls)
   if not isRunning then
     if key == controls.toggle_fullscreen then
@@ -356,11 +389,7 @@ function level.keypressed(key, controls)
       toggleMouseVisibility()
     end
     if key == controls.start then
-      isRunning = true
-      audio.idle:stop()
-      if not audio.yodel_loop:isPlaying() then
-        audio.yodel_intro:play()
-      end
+      startGame()
     end
   else
     whale.keypressed(key)
