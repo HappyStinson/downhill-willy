@@ -30,6 +30,11 @@ This 2D game was made by [Rasmus Nordling](https://github.com/happystinson) and 
 
 - Fonts used are [Sail](https://www.fontsquirrel.com/fonts/sail) and [League Gothic](https://www.fontsquirrel.com/fonts/League-Gothic)
 - Ambient sound used is [pineforest winter NL SHORT 130110](https://freesound.org/people/klankbeeld/sounds/173841/) by [klankbeeld](https://freesound.org/people/klankbeeld/)
+- Fanfare sound is [Jingle_Achievement_00](https://freesound.org/people/LittleRobotSoundFactory/sounds/270404/) by [LittleRobotSoundFactory](https://freesound.org/people/LittleRobotSoundFactory/)
+- Collision with log effect [ANI Big Pipe Hit](https://freesound.org/people/ani_music/sounds/244983/) by [ani_music](https://freesound.org/people/ani_music/)
+- Collision with snowman effect [water - ice - cooler - dropping a chunk of ice into cooler 04](https://freesound.org/people/Anthousai/sounds/406070/) by [Anthousai](https://freesound.org/people/Anthousai/)
+- Collision with stone effect [doorhit](https://freesound.org/people/tbone1999/sounds/427563/) by [tbone1999](https://freesound.org/people/tbone1999/)
+- Collision with tree effect [Frying Pan Hit](https://freesound.org/people/tbone1999/sounds/401706/) by [tbone1999](https://freesound.org/people/tbone1999/)
 - Yodel loop used is sampled from [Franz "Franzl" Lang - Auf und auf voll Lebenslust](https://youtu.be/bXvoe7U1nwo?t=28)
 
 ## Dependencies
