@@ -1,5 +1,7 @@
 -- This file describes our level
 
+PROF_CAPTURE = true
+prof = require 'jprof'
 level = {}
 require 'whale'
 require 'constants'
@@ -175,6 +177,7 @@ local function removeObjects()
 end
 
 function level.update(dt)
+  prof.push("frame")
   if not isRunning then
     audioSources.yodel_intro:stop()
     audioSources.yodel_loop:stop()
@@ -183,6 +186,7 @@ function level.update(dt)
   end
   
   if isRunning == true then
+    prof.push("update")
     isPaused = false
     
     -- Speed changes with time
@@ -199,31 +203,44 @@ function level.update(dt)
       hiscore = score
     end
     
+    prof.push("updateBackground")
     updateBackground(dt)
+    prof.pop()
     
     -- Spawn new objects
     if love.math.random(1, 100) <= 1 then
+      prof.push("spawnRandomObject")
       spawnRandomObject()
+      prof.pop()
     end
     
     -- Update object positions
+    prof.push("update objects")
     for _, v in ipairs(level.objects) do
       v.x = v.x - dt * 100 * speed
       v.y = laneYPos[v.lane] + 0.335 * v.x
     end
+    prof.pop()
     
     -- Update whale position
+    prof.push("whale update")
     whale.update(dt)
+    prof.pop()
     
     if time > 2 then
+      prof.push("checkCollision")
       checkCollision()
+      prof.pop()
     end
     
+    prof.push("removeObjects")
     removeObjects()
+    prof.pop()
     
     if (not audioSources.yodel_intro:isPlaying()) and isRunning == true then
       audioSources.yodel_loop:play()
     end
+    prof.pop("update")
   end
 end
 
@@ -358,6 +375,7 @@ function level.draw(controls)
   
   -- Draw user interface
   drawGUI(controls)
+  prof.pop("frame")
 end
 
 local function toggleFullscreen()
@@ -391,4 +409,8 @@ function level.keypressed(key, controls)
   else
     whale.keypressed(key)
   end
+end
+
+function love.quit()
+  prof.write("prof.mpack")
 end
