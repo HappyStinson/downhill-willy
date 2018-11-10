@@ -41,3 +41,7 @@ This 2D game was made by [Rasmus Nordling](https://github.com/happystinson) and 
 
 - Lua 5.1
 - [LÖVE](https://www.love2d.org/) 11.1
+
+## Downloads
+
+Check the [releases](https://github.com/HappyStinson/downhill-willy/releases) tab for this repo or view the game at [itch.io](https://rasmusnordling.itch.io/downhill-willy).
