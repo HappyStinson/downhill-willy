@@ -40,7 +40,7 @@ This 2D game was made by [Rasmus Nordling](https://github.com/happystinson) and 
 ## Dependencies
 
 - Lua 5.1
-- [LÖVE](https://www.love2d.org/) 11.1
+- [LÖVE](https://www.love2d.org/) 11.4
 
 ## Downloads
 
