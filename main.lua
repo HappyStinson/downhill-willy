@@ -1,13 +1,14 @@
--- just a comment
-
--- This game requires level.lua
-require('level')
-require('constants')
+require 'src.constants'
+require 'src.level'
+Input = require 'src.input'
 
 function love.load()
   love.mouse.setVisible(false)
   gameCanvas = love.graphics.newCanvas(GAME_WIDTH, GAME_HEIGHT)
   level.load()
+
+  Input:initJoystick()
+
   -- Start the game in fullscreen
   love.window.setFullscreen(true, "desktop")
 end
@@ -40,12 +41,4 @@ end
 
 function getMarginX(scale)
   return (love.graphics.getWidth() - GAME_WIDTH * scale) / 2
-end
-
-function love.keypressed(key)
-  if key == controls.quit then
-    love.event.quit()
-  end
-  
-  level.keypressed(key, controls)
 end
