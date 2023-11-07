@@ -3,7 +3,7 @@
 function love.conf(t)
   t.title = "Downhill Willy - BOSS Jam 2014"
   t.window.icon = "assets/logo.png"
-  t.version = "11.1"
+  t.version = "11.4"
   t.window.width = 1280
   t.window.height = 720
 end

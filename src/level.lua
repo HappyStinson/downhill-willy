@@ -1,10 +1,22 @@
 -- This file describes our level
 
 level = {}
-require 'whale'
-require 'constants'
-local audio = require 'audio'
-local colors = require 'colors'
+
+require 'src.whale'
+require 'src.constants'
+local audio = require 'src.audio'
+local colors = require 'src.colors'
+
+-- LOAD
+local function createBackgroundQuad()
+  -- Create a quad for the background
+  mapWidth = images.bg_mnt1:getWidth() * 2
+  mountainQuad = love.graphics.newQuad(0, 0, mapWidth, 704, 1547, 704)
+  forestQuad = love.graphics.newQuad(0, 0, mapWidth, 423, 1547, 423)
+  images.bg_mnt1:setWrap("repeat")
+  images.bg_mnt2:setWrap("repeat")
+  images.bg_forest:setWrap("repeat")
+end
 
 local function loadImages()
   img_fn = {"bg_forest", "bg_mnt1", "bg_mnt2", "fg_snow", "ui_hiscore", "lanes", "logo", "obj_log", "obj_snowman", "obj_stone", "obj_tree", "player_idle", "player_run1", "player_run2", "ui_score", "sky", "vall"}
@@ -13,13 +25,7 @@ local function loadImages()
     images[v] = love.graphics.newImage("assets/"..v..".png")
   end
   
-  -- Create a quad for the background
-  mapWidth = images.bg_mnt1:getWidth() * 2
-  mountainQuad = love.graphics.newQuad(0, 0, mapWidth, 704, 1547, 704)
-  forestQuad = love.graphics.newQuad(0, 0, mapWidth, 423, 1547, 423)
-  images.bg_mnt1:setWrap("repeat")
-  images.bg_mnt2:setWrap("repeat")
-  images.bg_forest:setWrap("repeat")
+  createBackgroundQuad()
 end
 
 local function initFont()
@@ -39,10 +45,28 @@ local function initLanes()
   }
 end
 
+local function initAudio()
+  audioSources = {
+    idle = audio.streamLooped("yodel_idle"),
+    yodel_intro = audio.stream("yodel_intro"),
+    yodel_loop = audio.streamLooped("yodel_loop")
+  }
+  audioSources.idle:play()
+
+  soundEffects = {
+    fanfare = audio.soundEffect("fanfare"),
+    obj_log = audio.soundEffect("crash-log"),
+    obj_snowman = audio.soundEffect("crash-snowman"),
+    obj_stone = audio.soundEffect("crash-stone"),
+    obj_tree = audio.soundEffect("crash-tree")
+  }
+end
+
 function level.load()
   loadImages()
   initFont()
   initLanes()
+  initAudio()
   level.objects = {}
   
   isRunning = false
@@ -65,22 +89,6 @@ function level.load()
   
   laneYPos = {330, 250, 175}
   
-  -- Initialize audio
-  audioSources = {
-    idle = audio.streamLooped("yodel_idle"),
-    yodel_intro = audio.stream("yodel_intro"),
-    yodel_loop = audio.streamLooped("yodel_loop")
-  }
-  audioSources.idle:play()
-
-  soundEffects = {
-    fanfare = audio.soundEffect("fanfare"),
-    obj_log = audio.soundEffect("crash-log"),
-    obj_snowman = audio.soundEffect("crash-snowman"),
-    obj_stone = audio.soundEffect("crash-stone"),
-    obj_tree = audio.soundEffect("crash-tree")
-  }
-  
   -- Keep track of current and best score
   score = 0
   hiscore = 0
@@ -89,6 +97,7 @@ function level.load()
   whale.load()
 end
 
+-- UPDATE
 local function updateBackground(dt)
   bgOffsets.mnt1 = bgOffsets.mnt1 + dt * 5 * speed
   bgOffsets.mnt2 = bgOffsets.mnt2 + dt * 10 * speed
@@ -213,6 +222,7 @@ function level.update(dt)
     end
     
     -- Update whale position
+    Input:processCharacterMovementInput()
     whale.update(dt)
     
     if time > 2 then
@@ -227,6 +237,7 @@ function level.update(dt)
   end
 end
 
+-- DRAW
 local function drawBackground()
   -- Draw the beautiful sky
   love.graphics.draw(images.sky, 0, 0)
@@ -360,35 +371,24 @@ function level.draw(controls)
   drawGUI(controls)
 end
 
-local function toggleFullscreen()
+function level.toggleFullscreen()
   local isFullscreen = not love.window.getFullscreen()
   love.window.setFullscreen(isFullscreen, "desktop")
 end
 
-local function toggleMouseVisibility()
+function level.toggleMouseVisibility()
   local state = not love.mouse.isVisible()
   love.mouse.setVisible(state)
 end
 
-local function startGame()
-  isRunning = true
-  playerGotNewHighScore = false
-  audioSources.idle:stop()
-  if not audioSources.yodel_loop:isPlaying() then
-    audioSources.yodel_intro:play()
-  end
-end
-
-function level.keypressed(key, controls)
+function level.startGame()
   if not isRunning then
-    if key == controls.toggle_fullscreen then
-      toggleFullscreen()
-      toggleMouseVisibility()
+    isRunning = true
+    playerGotNewHighScore = false
+    audioSources.idle:stop()
+    
+    if not audioSources.yodel_loop:isPlaying() then
+      audioSources.yodel_intro:play()
     end
-    if key == controls.start then
-      startGame()
-    end
-  else
-    whale.keypressed(key)
   end
 end
