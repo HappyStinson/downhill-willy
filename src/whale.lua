@@ -20,10 +20,14 @@ function whale.update(dt)
   whale.y = getY(whale.lane, whale.x)
 end
 
-function whale.keypressed(key)
-  if key == "up" and whale.lane < 3 then
+function whale.moveUp()
+  if whale.lane < 3 then
     whale.lane = whale.lane + 1
-  elseif key == "down" and whale.lane > 1 then
+  end
+end
+
+function whale.moveDown()
+  if whale.lane > 1 then
     whale.lane = whale.lane - 1
   end
 end
