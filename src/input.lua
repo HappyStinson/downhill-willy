@@ -1,8 +1,7 @@
 -- Simple LÖVE Joystick and Keyboard input
-local Input = {}
+Graphics = require 'src.graphics'
 
-require 'src.level'
-require 'src.whale'
+local Input = {}
 
 local inputState = {
     keyPressed = {
@@ -31,8 +30,8 @@ function Input:keyPressed(key)
         inputState.keyPressed.down = true
 
     elseif key == controls.toggle_fullscreen then
-        level.toggleFullscreen()
-        level.toggleMouseVisibility()
+        Graphics:toggleFullscreen()
+        Graphics:toggleMouseVisibility()
     elseif key == controls.start then
         startGame()
       end

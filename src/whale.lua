@@ -34,9 +34,9 @@ end
 
 function whale.playAnimation()
   if whale.animationTime % 1 <= 0.5 then
-    love.graphics.draw(images.player_run1, whale.x, whale.y, 0, 1, 1, whale.offsetX, whale.offsetY)
+    Graphics:drawImage(images.player_run1, whale.x, whale.y, whale.offsetX, whale.offsetY)
   else
-    love.graphics.draw(images.player_run2, whale.x, whale.y, 0, 1, 1, whale.offsetX, whale.offsetY)
+    Graphics:drawImage(images.player_run2, whale.x, whale.y, whale.offsetX, whale.offsetY)
   end
 end
 
@@ -44,4 +44,3 @@ function getY(lane, x)
   local laneYPos = {330, 250, 175}
   return laneYPos[lane] + (0.335 * x)
 end
-
