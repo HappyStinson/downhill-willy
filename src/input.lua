@@ -32,6 +32,7 @@ function Input:keyPressed(key)
     elseif key == controls.toggle_fullscreen then
         Graphics:toggleFullscreen()
         Graphics:toggleMouseVisibility()
+
     elseif key == controls.start then
         startGame()
       end
@@ -42,6 +43,7 @@ function Input:gamepadButtonPressed(button)
         inputState.gamepadButtonPressed.dpadUp = true
     elseif button == "dpdown" then
         inputState.gamepadButtonPressed.dpadDown = true
+    
     elseif button == "start" then
         startGame()
     end

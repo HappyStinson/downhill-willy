@@ -40,7 +40,6 @@ function Graphics:loadImages(filenames)
   end
 end
 
--- quad = love.graphics.newQuad( x, y, width, height, sw, sh )
 function Graphics:backgroundQuad(height)
   mapWidth = images.bg_mnt1:getWidth() * 2
   return love.graphics.newQuad(0, 0, mapWidth, height, 1547, height)
